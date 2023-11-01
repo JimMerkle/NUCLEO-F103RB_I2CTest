@@ -6,7 +6,7 @@
 // Using serial interface, receive commands with parameters.
 // Parse the command and parameters, look up the command in a table, execute the command.
 // Since the command/argument buffer is global with global pointers, each command will parse its own arguments.
-// Since no argments are passed in the function call, all commands will have int command_name(void) prototype.
+// Since no arguments are passed in the function call, all commands will have int command_name(void) prototype.
 
 // Notes:
 // The stdio library's stdout stream is buffered by default.  This makes printf() and putchar() work strangely
@@ -231,12 +231,13 @@ int cl_id(void) {
 //Address: 0xE004 2000
 //Only 32-bits access supported. Read-only.
 int cl_info(void) {
-    volatile uint16_t *p_k_bytes = (uint16_t*) 0x1FFFF7E0;
-    volatile uint32_t *p_dev_id = (uint32_t*) 0xE0042000;
+    volatile uint16_t *p_k_bytes = (uint16_t*) FLASHSIZE_BASE; // stm32f103xb.h
+    volatile uint32_t *p_dev_id = (uint32_t*) DBGMCU_BASE; // stm32f103xb.h
     printf("Processor Flash: %uK bytes\n", *p_k_bytes);
     printf("Processor ID Code: 0x%08lX\n", *p_dev_id);
     return 0;
 }
+
 
 // Return appropriate error code string
 // Yes, we could just return the HAL strings vs copy them...
