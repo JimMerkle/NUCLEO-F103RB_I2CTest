@@ -19,6 +19,7 @@
 #include "command_line.h"
 #include "main.h"   // HAL functions and defines
 #include "cl_i2c.h"
+#include "cl_ds3231.h"
 
 // Typedefs
 typedef struct {
@@ -41,6 +42,8 @@ const COMMAND_ITEM cmd_table[] = {
 	{"i2cdump",   "i2cdump <i2c address>",                        2, cl_i2c_dump},
 	{"i2cget",    "i2cget <i2c address> <register>",              3, cl_i2c_get},
 	{"i2cset",    "i2cset <i2c address> <register> <value>",      3, cl_i2c_set},
+    {"time",      "time <hrs min sec>",                           1, cl_ds_time},
+    {"date",      "date <mm dd yy>",                              1, cl_ds_date},
 #endif // HAL_I2C_MODULE_ENABLED
     {NULL,NULL,0,NULL}, /* end of table */
 };

@@ -6,6 +6,10 @@
 #ifndef _command_line_h_
 #define _command_line_h_
 
+#include <stdio.h>	// printf()
+#include <stdint.h> // uint8_t
+#include <stdlib.h> // strtol()
+
 
 // ANSI Examples: To get black letters on white background use ESC[30;47m
 // To get red use ESC[31m, to get bright red use ESC[1;31m

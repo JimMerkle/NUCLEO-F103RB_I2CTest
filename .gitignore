@@ -1,0 +1,3 @@
+# ignore files in Debug and Release
+Debug/
+Release/
