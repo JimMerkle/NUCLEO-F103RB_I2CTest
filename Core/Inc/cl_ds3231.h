@@ -23,5 +23,6 @@ uint8_t bin_to_bcd(uint8_t bin);
 int cl_ds_time_valid(void);
 int cl_ds_time(void);
 int cl_ds_date(void);
+int cl_ds_time_stamp(void);
 
 #endif /* INC_CL_DS3231_H_ */

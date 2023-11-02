@@ -44,6 +44,7 @@ const COMMAND_ITEM cmd_table[] = {
 	{"i2cset",    "i2cset <i2c address> <register> <value>",      3, cl_i2c_set},
     {"time",      "time <hrs min sec>",                           1, cl_ds_time},
     {"date",      "date <mm dd yy>",                              1, cl_ds_date},
+    {"ts",        "Unix time (in seconds)",                       1, cl_ds_time_stamp},
 #endif // HAL_I2C_MODULE_ENABLED
     {NULL,NULL,0,NULL}, /* end of table */
 };
