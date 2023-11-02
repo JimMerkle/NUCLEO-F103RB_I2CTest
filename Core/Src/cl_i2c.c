@@ -183,4 +183,5 @@ int cl_i2c_set(void)
 	if(HAL_OK != hal_status) {printf("Error %d writing to I2C address 0x%02X\n",hal_status,i2c_address); return -2;}
 	return 0;
 }
+
 #endif // HAL_I2C_MODULE_ENABLED

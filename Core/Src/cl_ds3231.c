@@ -9,6 +9,10 @@
 #include "cl_ds3231.h"
 #include "rtc_lib.h"
 
+// Forward declarations:
+int read_rtc_into_date_time(DATE_TIME * dt);
+
+
 /* To implement the expected functionality, the following lines would be added to
    command_line.c, in the cmd_table[]:
 
@@ -60,7 +64,6 @@ int cl_ds_time_valid(void)
 int cl_ds_time(void)
 {
 	int rc;
-	uint8_t reg=DS_REG_SECONDS;
 	uint8_t sec_min_hr[4];
 
 	switch(argc) {
@@ -93,14 +96,28 @@ int cl_ds_time(void)
 		// Check RTC, status register - OSF flag.  Flag should be clear
 		//	rc = cl_ds_time_valid();
 		//	if(rc) return rc;
-
+#if 0
 		// Read seconds, minutes, hours into buffer
+		uint8_t reg=DS_REG_SECONDS;
 		rc = cl_i2c_write_read(I2C_ADDRESS_DS3231, &reg, 1, sec_min_hr, 3); // read [0]seconds, [1]minutes, [2]hours
 		if(rc) {
 			printf("Error reading DS3231 seconds, minutes, hours registers\n");
 			return rc;
 		}
 		printf("%d:%02d:%02d\n",bcd_to_bin(sec_min_hr[2]),bcd_to_bin(sec_min_hr[1]),bcd_to_bin(sec_min_hr[0]));
+#else
+		// Read the DS3231, return date and time via the DATE_TIME structure pointer
+		DATE_TIME dt;
+		read_rtc_into_date_time(&dt);
+		// Convert the DATE_TIME structure value into a Linux number of seconds
+		uint32_t utc_time = unixtime(&dt);
+		// Subtract 5 hours of seconds from the time
+		utc_time -= (5 * 60 * 60);
+		// Convert back to DATE_TIME structure
+		unix_to_date_time(&dt, utc_time);
+		// Display local time
+		printf("%d:%02d:%02d\n",dt.hours,dt.minutes,dt.seconds);
+#endif
 		break;
 
 	default:
@@ -166,14 +183,6 @@ int cl_ds_date(void)
 	return 0;
 } // cl_ds_date
 
-// What is epoch time?  (From epochconvert.com)
-// The Unix epoch (or Unix time or POSIX time or Unix timestamp) is the number of seconds
-// that have elapsed since January 1, 1970 (midnight UTC/GMT), not counting leap seconds
-// (in ISO 8601: 1970-01-01T00:00:00Z). Literally speaking the epoch is Unix time 0,
-// (midnight 1/1/1970), but 'epoch' is often used as a synonym for Unix time. Some systems
-// store epoch dates as a signed 32-bit integer, which might cause problems on
-// January 19, 2038 (known as the Year 2038 problem or Y2038).
-
 
 // Read the DS3231, return date and time via the DATE_TIME structure pointer
 int read_rtc_into_date_time(DATE_TIME * dt)
@@ -188,8 +197,7 @@ int read_rtc_into_date_time(DATE_TIME * dt)
 		printf("Error reading DS3231 time calendar registers\n");
 		return rc;
 	}
-
-	// The value ranges for each of the registers is the same as those defined by DATE_TIME.
+	// The value ranges for each of the registers is the same as those defined for DATE_TIME.
 	// No adjusting needed there...
 	// Read, convert, write register values to DATE_TIME structure
 	dt->seconds = bcd_to_bin(rtc_buff[0]);
@@ -199,12 +207,13 @@ int read_rtc_into_date_time(DATE_TIME * dt)
 	dt->day     = bcd_to_bin(rtc_buff[4]);
 	dt->month   = bcd_to_bin(rtc_buff[5]); // ignoring century bit
 	dt->yOff    = bcd_to_bin(rtc_buff[6]);
-
-	printf("%s: %d/%02d/20%02d - %d:%02d:%02d\n",__func__,dt->month,dt->day,dt->yOff,dt->hours,dt->minutes,dt->seconds);
+	//printf("%s: %d/%02d/20%02d - %d:%02d:%02d\n",__func__,dt->month,dt->day,dt->yOff,dt->hours,dt->minutes,dt->seconds);
 	return 0;
 }
 
 // Read / calculate Linux Timestamp / Epoch value and display it
+// The value matches what linux command $ date +%s  displays
+// If want time values to match, load RTC with UTC time, not local time
 int cl_ds_time_stamp(void)
 {
 	DATE_TIME dt;
@@ -214,4 +223,6 @@ int cl_ds_time_stamp(void)
 	printf("TS: %lu\n",ts);
 	return 0;
 }
+
+
 

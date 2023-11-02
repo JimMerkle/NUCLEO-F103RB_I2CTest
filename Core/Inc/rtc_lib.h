@@ -8,9 +8,9 @@
 #define _RTC_LIB_H_
 
 // Constants
-#define SECONDS_PER_DAY 86400L ///< 60 * 60 * 24
-#define SECONDS_FROM_1970_TO_2000                                              \
-  946684800 ///< Unixtime for 2000-01-01 00:00:00, useful for initialization
+#define SECONDS_PER_DAY 86400L  // 60 * 60 * 24
+#define SECONDS_FROM_1970_TO_2000 946684800L
+
 
 // Data structures
 typedef struct {
@@ -28,5 +28,6 @@ typedef struct {
 */
 /**************************************************************************/
 uint32_t unixtime(DATE_TIME * dt);
+void unix_to_date_time(DATE_TIME * dt, uint32_t t);
 
 #endif // _RTC_LIB_H_
