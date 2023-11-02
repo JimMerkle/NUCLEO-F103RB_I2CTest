@@ -83,7 +83,7 @@ int cl_ds_time(void)
 
 		// Clear OSF status register bit
 		uint8_t index_status[2] = {DS_REG_STATUS,0};
-		rc = cl_i2c_write_read(I2C_ADDRESS_DS3231, index_status, 2, NULL, 0); // write time registers
+		rc = cl_i2c_write_read(I2C_ADDRESS_DS3231, index_status, 2, NULL, 0); // write status register
 		if(rc) {
 			printf("Error writing DS3231 status registers\n");
 			return rc;
