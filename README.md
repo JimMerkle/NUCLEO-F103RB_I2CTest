@@ -11,7 +11,7 @@ For the DS3231 RTC, this part contains 19 registers (see PDF page 11/20)<br>
 
 ### AT24C32
 7-bit I2C address: 0x57
-
+Only supports 100KHz SCL clock when powered with 3.3V.  (Need 5.0V supply for 400KHz SCL.)
 
 ### I2C Bus Interface / Board wiring to NUCLEO-F103RB
 NOTE: The I2C pins used are not defaults, and require the pins defined accordingly

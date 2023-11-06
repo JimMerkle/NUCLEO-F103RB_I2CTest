@@ -1,0 +1,81 @@
+/*
+ * at24c32.c
+ *
+ *  Created on: Nov 6, 2023
+ *      Author: Jim Merkle
+ */
+#include "command_line.h"
+#include "at24c32.h"
+#include "cl_i2c.h"
+#include <string.h> // memcpy()
+
+// Write array of bytes to the at24c32 device, using "Page Write" method (up to 32 bytes of data written with one start and one stop).
+// Note: This function doesn't check for address wrap that occurs on 32-byte boundaries
+int at24c32_write(uint16_t address, uint8_t * data, uint8_t count)
+{
+	uint8_t buf[34]; // hold two bytes for storage address, and up to 32 bytes of data
+
+	if(count > 32) {
+		printf("%s: count > 32\n",__func__);
+		return 1;
+	}
+	// prepare for write - load up buf
+	buf[0] = (uint8_t) (address >> 8); // address, high byte
+	buf[1] = (uint8_t) address; // address, low byte
+	memcpy(&buf[3],data,count);
+	int rc = cl_i2c_write_read(I2C_ADDRESS_AT24C32, buf, count+2, NULL, 0);
+	if(rc) {
+		printf("Error writing at24c32\n");
+	}
+	return rc;
+}
+
+// Read array of bytes from the at24c32 device, using "Page Write" method (up to 32 bytes of data written with one start and one stop).
+// Note: For device reads, address wrap will occur at the end of physical device storage
+int at24c32_read(uint16_t address, uint8_t * data, uint8_t count)
+{
+	uint8_t addr[2]; // hold two bytes for storage address
+
+	if(count > 32) {
+		printf("%s: count > 32\n",__func__);
+		return 1;
+	}
+	// Write address to begin reading
+	addr[0] = (uint8_t) (address >> 8); // address, high byte
+	addr[1] = (uint8_t) address; // address, low byte
+	int rc = cl_i2c_write_read(I2C_ADDRESS_AT24C32, addr, 2, data, count);
+	if(rc) {
+		printf("Error reading at24c32\n");
+	}
+	return rc;
+}
+
+// Display one or more rows, 16 bytes each
+void lame_dump(uint8_t * address, uint32_t count)
+{
+	while (count) {
+		uint32_t thisrow = count<=16? count:16; // display 1-16 bytes
+		// print a row
+		for(uint32_t i=0;i<thisrow;i++)
+			printf("%02X ",*address++);
+		// update count
+		count-=thisrow;
+		printf("\n");
+	};
+	printf("\n");
+}
+
+// command line method to display first 32 bytes in the device
+int cl_read_at24c32(void) {
+
+
+	return 0;
+}
+
+// command line method to write first 32 bytes in the device
+int cl_write_at24c32(void) {
+
+
+	return 0;
+}
+

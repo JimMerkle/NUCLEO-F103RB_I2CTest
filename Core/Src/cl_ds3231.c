@@ -198,7 +198,7 @@ int read_rtc_into_date_time(DATE_TIME * dt)
 		return rc;
 	}
 	// The value ranges for each of the registers is the same as those defined for DATE_TIME.
-	// No adjusting needed there...
+	// No need to adjust values
 	// Read, convert, write register values to DATE_TIME structure
 	dt->seconds = bcd_to_bin(rtc_buff[0]);
 	dt->minutes = bcd_to_bin(rtc_buff[1]);
