@@ -22,7 +22,7 @@ int at24c32_write(uint16_t address, uint8_t * data, uint8_t count)
 	// prepare for write - load up buf
 	buf[0] = (uint8_t) (address >> 8); // address, high byte
 	buf[1] = (uint8_t) address; // address, low byte
-	memcpy(&buf[3],data,count);
+	memcpy(&buf[2],data,count);
 	int rc = cl_i2c_write_read(I2C_ADDRESS_AT24C32, buf, count+2, NULL, 0);
 	if(rc) {
 		printf("Error writing at24c32\n");
@@ -50,6 +50,8 @@ int at24c32_read(uint16_t address, uint8_t * data, uint8_t count)
 	return rc;
 }
 
+#if 0
+// Although lame_dump works, it's just a little too lame compared to hexdump()
 // Display one or more rows, 16 bytes each
 void lame_dump(uint8_t * address, uint32_t count)
 {
@@ -64,18 +66,25 @@ void lame_dump(uint8_t * address, uint32_t count)
 	};
 	printf("\n");
 }
+#endif
+
+void hexdump(const void* address, unsigned size); // hexdump.c
 
 // command line method to display first 32 bytes in the device
 int cl_read_at24c32(void) {
-
-
-	return 0;
+	uint8_t buf[32];
+	int rc = at24c32_read(0, buf, sizeof(buf));
+	hexdump(buf,sizeof(buf));
+	return rc;
 }
+
+//const char qbf[]={"The quick brown fox jumped."}; // 27 + null
+const char qbf[]={"12345678901234567890123456789012"}; // 32 + null
 
 // command line method to write first 32 bytes in the device
 int cl_write_at24c32(void) {
-
-
-	return 0;
+	//int rc = at24c32_write(0, (uint8_t *)qbf, sizeof(qbf));
+	int rc = at24c32_write(0, (uint8_t *)qbf, strlen(qbf)); // don't write the terminating null
+	return rc;
 }
 

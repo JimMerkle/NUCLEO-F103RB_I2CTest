@@ -20,6 +20,7 @@
 #include "main.h"   // HAL functions and defines
 #include "cl_i2c.h"
 #include "cl_ds3231.h"
+#include "at24c32.h"
 
 // Typedefs
 typedef struct {
@@ -45,6 +46,10 @@ const COMMAND_ITEM cmd_table[] = {
     {"time",      "time <hrs min sec>",                           1, cl_ds_time},
     {"date",      "date <mm dd yy>",                              1, cl_ds_date},
     {"ts",        "Unix time (in seconds)",                       1, cl_ds_time_stamp},
+
+	{"atread",    "Read 32 bytes from at24c32 and display them",  1, cl_read_at24c32},
+	{"atwrite",   "Write to first 32 bytes of at24c32",           1, cl_write_at24c32},
+
 #endif // HAL_I2C_MODULE_ENABLED
     {NULL,NULL,0,NULL}, /* end of table */
 };
