@@ -147,7 +147,7 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  setvbuf(stdout, NULL, _IONBF, 0); // Disable STDOUT stream buffering
+  //setvbuf(stdout, NULL, _IONBF, 0); // Disable STDOUT stream buffering - done in cl_setup()
   cl_setup(); // Initialize command line interface
 
   /* USER CODE END 2 */
