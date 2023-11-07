@@ -30,7 +30,7 @@ int at24c32_write(uint16_t address, uint8_t * data, uint8_t count)
 	return rc;
 }
 
-// Read array of bytes from the at24c32 device, using "Page Write" method (up to 32 bytes of data written with one start and one stop).
+// Read array of bytes from the at24c32 device.
 // Note: For device reads, address wrap will occur at the end of physical device storage
 int at24c32_read(uint16_t address, uint8_t * data, uint8_t count)
 {
@@ -88,3 +88,32 @@ int cl_write_at24c32(void) {
 	return rc;
 }
 
+// command line method to dump the contents of the at24c32 device
+int cl_dump_at24c32(void) {
+	int rc;
+	uint8_t buf[32];
+	for(uint16_t addr=0;addr<AT24C32_BYTE_COUNT;addr+=32) {
+		rc = at24c32_read(addr, buf, sizeof(buf));
+		hexdump(buf,sizeof(buf)); // this won't be the prettiest, since the address will be the same for each call
+		if(rc) return rc;
+	} // for-loop
+	return rc;
+}
+
+// command line method to fill the device with values 0x00 through 0xFF
+int cl_fill_at24c32(void) {
+	int rc;
+	uint8_t buf[AT24C32_PAGE_WRITE_SIZE];
+	for(uint16_t addr=0;addr<AT24C32_BYTE_COUNT;addr+=32) {
+		// Fill buf for each page write
+		uint8_t data = (uint8_t)addr;
+		for(uint16_t i = 0;i<AT24C32_PAGE_WRITE_SIZE;i++) buf[i] = data++;
+
+		rc = at24c32_write(addr, buf, AT24C32_PAGE_WRITE_SIZE); // page write
+		if(rc) return rc;
+		printf(".");
+		HAL_Delay(10); // some delay is required to complete the page write
+	} // for-loop
+	printf("\n");
+	return rc;
+}

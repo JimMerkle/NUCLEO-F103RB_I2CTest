@@ -49,6 +49,8 @@ const COMMAND_ITEM cmd_table[] = {
 
 	{"atread",    "Read 32 bytes from at24c32 and display them",  1, cl_read_at24c32},
 	{"atwrite",   "Write to first 32 bytes of at24c32",           1, cl_write_at24c32},
+	{"atdump",    "Dump the contents of the at24c32",             1, cl_dump_at24c32},
+	{"atfill",    "Fill the at24c32 with incrementing data",      1, cl_fill_at24c32},
 
 #endif // HAL_I2C_MODULE_ENABLED
     {NULL,NULL,0,NULL}, /* end of table */
