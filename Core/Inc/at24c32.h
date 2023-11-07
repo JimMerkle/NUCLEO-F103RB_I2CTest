@@ -17,6 +17,7 @@ int cl_read_at24c32(void);
 int cl_write_at24c32(void);
 int cl_fill_at24c32(void);
 int cl_dump_at24c32(void);
+int cl_write_at24c32_256(void);
 
 void lame_dump(uint8_t * address, uint32_t count);
 

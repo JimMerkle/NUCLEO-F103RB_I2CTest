@@ -45,5 +45,5 @@ void hexdump(const void* address, unsigned count) {
         displayaddr += thisline;
     }
     // Add an additional line feed if necessary
-    printf("\n");
+    //printf("\n");
 } // hexdump()

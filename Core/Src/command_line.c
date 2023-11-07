@@ -47,10 +47,11 @@ const COMMAND_ITEM cmd_table[] = {
     {"date",      "date <mm dd yy>",                              1, cl_ds_date},
     {"ts",        "Unix time (in seconds)",                       1, cl_ds_time_stamp},
 
-	{"atread",    "Read 32 bytes from at24c32 and display them",  1, cl_read_at24c32},
+	{"atread",    "Read <count - default 32> bytes from at24c32", 1, cl_read_at24c32},
 	{"atwrite",   "Write to first 32 bytes of at24c32",           1, cl_write_at24c32},
 	{"atdump",    "Dump the contents of the at24c32",             1, cl_dump_at24c32},
 	{"atfill",    "Fill the at24c32 with incrementing data",      1, cl_fill_at24c32},
+	{"at256",     "Write 256 random bytes, read and compare",     1, cl_write_at24c32_256},
 
 #endif // HAL_I2C_MODULE_ENABLED
     {NULL,NULL,0,NULL}, /* end of table */
