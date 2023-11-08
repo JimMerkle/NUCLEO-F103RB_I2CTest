@@ -146,6 +146,8 @@ int cl_dump_at24c32(void) {
 // command line method to fill the device with values 0x00 through 0xFF
 int cl_fill_at24c32(void) {
 	int rc;
+#if 0
+	// This section of code does a good job of filling the device, 32 bytes at a time
 	uint8_t buf[AT24C32_PAGE_WRITE_SIZE];
 	for(uint16_t addr=0;addr<AT24C32_BYTE_COUNT;addr+=32) {
 		// Fill buf for each page write
@@ -157,11 +159,24 @@ int cl_fill_at24c32(void) {
 		printf(".");
 		HAL_Delay(10); // some delay is required to complete the page write
 	} // for-loop
+#else
+	// Fill the device, 256 bytes at a time
+	uint8_t buf[256];
+	// Write the 256 byte buffer with incrementing data
+	for(uint16_t i = 0;i<256;i++)
+		buf[i] = i;
+	// Write 256 bytes at a time until full (16 writes)
+	for(uint16_t addr=0;addr<AT24C32_BYTE_COUNT;addr+=256) {
+		rc = at24c32_write(addr, buf, sizeof(buf));
+		if(rc) return rc;
+		printf("."); // visual indicator for writing progress
+	} // for-loop
+#endif
 	printf("\n");
 	return rc;
 }
 
-// command line method to write to 256 bytes to some address and then read it back and compare
+// command line method to write 256 bytes to some address and then read it back and compare
 int cl_write_at24c32_256(void) {
 	int rc = at24c32_write(0x457, (uint8_t *)randbytes, sizeof(randbytes));
 	if(rc) return rc;

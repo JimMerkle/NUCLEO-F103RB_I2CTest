@@ -58,5 +58,6 @@ int cl_id(void);
 int cl_info(void);
 int cl_reset(void);
 int cl_timer(void);
+int cl_timer_delay_test(void);
 
 #endif // _command_line_h_

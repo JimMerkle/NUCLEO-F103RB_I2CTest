@@ -38,6 +38,7 @@ const COMMAND_ITEM cmd_table[] = {
     {"info",      "processor info",                               1, cl_info},
     {"reset",     "reset processor",                              1, cl_reset},
     {"timer",     "timer test - testing 50ms delay",              1, cl_timer},
+	{"delaytest", "test microsecond delays",                      1, cl_timer_delay_test},
 #ifdef HAL_I2C_MODULE_ENABLED
 	{"i2cscan",   "scan i2c bus for connected devices",           1, cl_i2c_scan},
 	{"i2cdump",   "i2cdump <i2c address>",                        2, cl_i2c_dump},
@@ -287,7 +288,7 @@ int cl_reset(void) {
 // Perform a timer2 test.
 // Timer2 is a 16-bit free-running timer with pre-scale counter.
 // Is the us timer tracking System Ticks?
-// Timer2 is configured to update each micro-second
+// Timer2 is configured to increment each micro-second
 // Alternatively, if used a GPIO, we could toggle a pin after X micro-seconds
 int cl_timer(void)
 {
@@ -302,6 +303,69 @@ int cl_timer(void)
     printf("HAL_GetTick() time: %lu ms\n",stop_ticks-start_ticks);
     if(stop_us < start_us) stop_us += 1<<16; // roll-over, add 16-bit roll-over offset
     printf("TIMx->CNT time: %lu us\n",stop_us - start_us);
+    return 0;
+}
+
+// Using a 16 bit timer spin-delay a quantity of micro-seconds
+// Timer is configured to increment each micro-second
+// This function appears to work perfectly at 64-72MHz system clock, 64-72MHz timer clock, always returning 1000us, when 1000us was requested
+// With 16MHz system clock and 8MHz peripheral clock, the delta times are 1000, 1001, and 1019 when systick interrupts fire
+// With 8MHz system clock and 8MHz peripheral clock, the delta times are 1000, 1002, and 1033, 1036, 1038 when systick interrupts fire
+uint16_t timer_delay_us(uint32_t delay_us)
+{
+    //printf("%s(%lu)\n",__func__,delay_us);
+    volatile TIM_TypeDef *TIMx = TIM2; // Establish pointer to timer 2 registers
+    uint16_t start_us = TIMx->CNT; // function entry count
+    uint16_t delta;
+    do {
+    	delta = TIMx->CNT - start_us;
+    } while(delta < delay_us);
+
+    return delta;
+}
+
+// Comment out the following define to use the non-array method
+//#define USEARRAY	1
+
+// Test timer_delay_us() function
+int cl_timer_delay_test(void)
+{
+    printf("%s()\n",__func__);
+#ifdef USEARRAY
+    // Use array to collect and then display the results of 1024 tests
+    uint16_t delay_results[1024];
+    uint16_t i;
+
+	// collect results from 1024 1 ms delays (1 second or so)
+	for(i=0; i<1024; i++)
+		delay_results[i] = timer_delay_us(1000); // 1ms delay
+
+	// When using array, dump the array contents
+	for(i=0; i<1024; i++)
+		printf("%u:%u%s\n",i,delay_results[i],delay_results[i]<=1002?"":" <======="); // display marker for larger values
+
+#else
+    	// Analyze the delta time returned
+        uint16_t delta;
+        uint16_t i;
+
+        // For 60 seconds, test the timer_delay_us timer, looking for a delta that isn't 1000us
+        // 60 seconds count down
+        for(int seconds=59; seconds >= 0; seconds--) {
+        	// 1024 1 ms delays (1 second or so)
+        	for(i=0; i<1024; i++) {
+    			delta = timer_delay_us(1000); // 1ms delay
+    			if(delta > 1000) {
+    				printf("Not 1000us: %u\n",delta);
+    				return 1;
+    			}
+        	}
+        	printf("\b\b  \b\b%d",seconds); // seconds count down - erase previous display each time
+        }
+        printf("\b \n"); // erase the remaining '0', then line feed
+        printf("60 seconds worth of 1000us delays - each delay returned 1000us!\n");
+#endif
+
     return 0;
 }
 
