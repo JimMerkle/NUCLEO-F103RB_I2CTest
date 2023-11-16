@@ -16,8 +16,10 @@ Only supports 100KHz SCL clock when powered with 3.3V.  (Need 5.0V supply for 40
 ### I2C Bus Interface / Board wiring to NUCLEO-F103RB
 NOTE: The I2C pins used are not defaults, and require the pins defined accordingly
 
+```
 Signals Pins Used - Wire Colors - Access:
 PB8 I2C1_SCL - Arduino D15 (CN5-10) and Morpho CN10-3 (white)
 PB9 I2C1_SCA - Arduino D14 (CN5-9) and Morpho CN10-5 (green)
 +3V3 - Arduino CN6-4 and Morpho CN7-16 (orange)
 GND  - Arduino CN6-6, CN6-7, and Morpho CN7-19, CN7-20, CN7-22 (grey)
+```
