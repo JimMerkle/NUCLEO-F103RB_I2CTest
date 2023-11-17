@@ -13,7 +13,7 @@
 // Note: This function checks and manages address wrap that occurs on 32-byte boundaries
 int at24c32_write(uint16_t address, uint8_t * data, uint16_t count)
 {
-	int rc;
+	int rc = 0;
 	uint8_t buf[34]; // hold two bytes for storage address, and up to 32 bytes of data (page write)
 
 	if(count > AT24C32_BYTE_COUNT) {
@@ -85,7 +85,7 @@ void hexdump(const void* address, unsigned size); // hexdump.c
 
 // command line method to display <argument 1> count or 32 bytes from the device
 int cl_read_at24c32(void) {
-	int rc;
+	int rc = 0;
 	uint16_t count = 32;
     if(argc > 1) {
     	count = (uint16_t) strtol(argv[1], NULL, 0); // allow user to use decimal or hex

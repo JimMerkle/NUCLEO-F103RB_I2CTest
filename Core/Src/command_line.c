@@ -1,5 +1,5 @@
 // Copyright Jim Merkle, 2/17/2020
-// Module: command_line.c
+// File: command_line.c
 //
 // Command Line Parser
 //
@@ -21,6 +21,7 @@
 #include "cl_i2c.h"
 #include "cl_ds3231.h"
 #include "at24c32.h"
+#include "cl_vt100.h"
 
 // Typedefs
 typedef struct {
@@ -54,6 +55,7 @@ const COMMAND_ITEM cmd_table[] = {
 	{"atfill",    "Fill the at24c32 with incrementing data",      1, cl_fill_at24c32},
 	{"at256",     "Write 256 random bytes, read and compare",     1, cl_write_at24c32_256},
 
+	{"vt100",     "Example VT100 cursor movement",                1, cl_vt100},
 #endif // HAL_I2C_MODULE_ENABLED
     {NULL,NULL,0,NULL}, /* end of table */
 };
@@ -214,6 +216,7 @@ int cl_help(void) {
     return 0;
 }
 
+// This function is included here as a template - example of how to create / add your own command
 int cl_add(void) {
     printf("add..  A: %s  B: %s\n", argv[1], argv[2]);
     int A = (int) strtol(argv[1], NULL, 0); // allow user to use decimal or hex
@@ -308,7 +311,8 @@ int cl_timer(void)
 
 // Using a 16 bit timer spin-delay a quantity of micro-seconds
 // Timer is configured to increment each micro-second
-// This function appears to work perfectly at 64-72MHz system clock, 64-72MHz timer clock, always returning 1000us, when 1000us was requested
+// This function appears to work perfectly at 64-72MHz system clock, always returning 1000us, when 1000us was requested
+//  - Release build only.  Debug build runs noticeably slower, returning values greater than what was expected.
 // With 16MHz system clock and 8MHz peripheral clock, the delta times are 1000, 1001, and 1019 when systick interrupts fire
 // With 8MHz system clock and 8MHz peripheral clock, the delta times are 1000, 1002, and 1033, 1036, 1038 when systick interrupts fire
 uint16_t timer_delay_us(uint32_t delay_us)
