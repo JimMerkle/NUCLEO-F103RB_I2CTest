@@ -16,7 +16,7 @@
 #define VT100_CURSOR_OFF		"\033[?25l" // not standard, but supported by TeraTerm
 #define VT100_CURSOR_ON			"\033[?25h" // not standard, but supported by TeraTerm
 
-#define VT100_LINE_DRAW     	"\033(0"  // Enter DEC Line Drawing character set
+#define VT100_LINE_DRAW     	"\033(0"  // Select DEC Line Drawing character set
 #define VT100_ASCII         	"\033(B"  // Restore to ASCII character set
 
 

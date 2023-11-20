@@ -113,6 +113,9 @@ HAL_StatusTypeDef i2c_write_read(uint16_t devAddress, uint8_t * pwrite, uint16_t
 	return rc;
 }
 
+// Counter incremented each time blue push button is pressed
+uint32_t interrupt_counter = 0;
+
 /* USER CODE END 0 */
 
 /**
@@ -154,11 +157,20 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint32_t last_counter_peak = 0;
   while (1)
-  {
-      HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+  {   //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
       //printf("Hello World\n");
       cl_loop(); // look for characters from serial port
+
+      // If user pressed the blue button, it increments a counter each time.
+      // If the counter value has changed, display count value
+      // After 55 "rapid fire" button presses, only once did two interrupts fire during 50ms delay
+      if(interrupt_counter != last_counter_peak) {
+    	  printf("IntCntr: %lu\n",interrupt_counter);
+    	  last_counter_peak = interrupt_counter;
+      }
+
       HAL_Delay(50);
     /* USER CODE END WHILE */
 
