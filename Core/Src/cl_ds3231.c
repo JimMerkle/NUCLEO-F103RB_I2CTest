@@ -42,7 +42,7 @@ uint8_t bin_to_bcd(uint8_t bin)
 
 // DS3231 helper function - is RTC time valid
 // 0: time valid
-int cl_ds_time_valid(void)
+int ds_time_valid(void)
 {
 	// Start with reading the Status Register (0Fh,. Bit 7: Oscillator Stop Flag (OSF).
 	// If set, the oscillator was stopped in the past.  Time / date registers may be invalid.
@@ -60,10 +60,22 @@ int cl_ds_time_valid(void)
 	return 0;
 }
 
+// Check if DS3231 is present
+// Returns 0 (HAL_OK) if present, else returns non-zero and displays error messages
+int ds3231_present(I2C_HandleTypeDef *hi2c)
+{
+	HAL_StatusTypeDef rc = HAL_I2C_IsDeviceReady(hi2c, (uint16_t)(I2C_ADDRESS_DS3231<<1), 2, 2);
+	if(HAL_OK != rc) printf("DS3231 not found!\n");
+	return rc;
+}
+
 //
 int cl_ds_time(void)
 {
-	int rc;
+	// If DS3231 doesn't appear to be attached, return with error now
+	int rc = ds3231_present(&hi2c1);
+	if(HAL_OK != rc) return rc;
+
 	uint8_t sec_min_hr[4];
 
 	switch(argc) {
@@ -94,7 +106,7 @@ int cl_ds_time(void)
 		// No arguments - Display time - hours:minutes:seconds
 
 		// Check RTC, status register - OSF flag.  Flag should be clear
-		//	rc = cl_ds_time_valid();
+		//	rc = ds_time_valid();
 		//	if(rc) return rc;
 #if 0
 		// Read seconds, minutes, hours into buffer
@@ -131,7 +143,10 @@ int cl_ds_time(void)
 
 int cl_ds_date(void)
 {
-	int rc;
+	// If DS3231 doesn't appear to be attached, return with error now
+	int rc = ds3231_present(&hi2c1);
+	if(HAL_OK != rc) return rc;
+
 	uint8_t reg=DS_REG_DATE;
 	uint8_t date_month_year[4];
 
@@ -163,7 +178,7 @@ int cl_ds_date(void)
 		// No arguments - Display date - month/day/year
 
 		// Check RTC, status register - OSF flag.  Flag should be clear
-		//	rc = cl_ds_time_valid();
+		//	rc = ds_time_valid();
 		//	if(rc) return rc;
 
 		// Read date, month, year into buffer
@@ -216,12 +231,16 @@ int read_rtc_into_date_time(DATE_TIME * dt)
 // If want time values to match, load RTC with UTC time, not local time
 int cl_ds_time_stamp(void)
 {
+	// If DS3231 doesn't appear to be attached, return with error now
+	int rc = ds3231_present(&hi2c1);
+	if(HAL_OK != rc) return rc;
+
 	DATE_TIME dt;
 	read_rtc_into_date_time(&dt);
 
 	uint32_t ts = unixtime(&dt);
 	printf("TS: %lu\n",ts);
-	return 0;
+	return rc;
 }
 
 

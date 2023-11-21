@@ -7,7 +7,7 @@
 #define INC_CL_DS3231_H_
 
 // Defines:
-#define I2C_ADDRESS_DS3231	0x68
+#define I2C_ADDRESS_DS3231	0x68   // 7-bit I2C address
 
 // Register definitions
 #define DS_REG_SECONDS  0x00
