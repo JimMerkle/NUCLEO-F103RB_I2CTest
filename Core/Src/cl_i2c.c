@@ -2,7 +2,7 @@
 // File: cl_i2c.c
 //
 // I2C routines for the command line interface
-//
+// All the routines and command line interface assume the usage of 7-bit I2C address in the range 0x03 to 0x77.
 
 #include <stdio.h>
 #include <stdint.h> // uint8_t
@@ -83,7 +83,7 @@ int cl_i2c_scan(void)
 			continue;
 		}
 		// Perform I2C device detection - returns HAL_OK if device found
-		if(HAL_OK == HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(addr<<1), 2, 2))
+		if(HAL_OK == HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(addr<<1), 1, 2))
 			printf("%02X ",addr);
 		else
 			printf("-- ");
