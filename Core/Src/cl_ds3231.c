@@ -123,8 +123,8 @@ int cl_ds_time(void)
 		read_rtc_into_date_time(&dt);
 		// Convert the DATE_TIME structure value into a Linux number of seconds
 		uint32_t utc_time = unixtime(&dt);
-		// Subtract 5 hours of seconds from the time
-		utc_time -= (5 * 60 * 60);
+		// Subtract 6 hours of seconds from the time to display local time
+		utc_time -= (6 * 60 * 60);
 		// Convert back to DATE_TIME structure
 		unix_to_date_time(&dt, utc_time);
 		// Display local time
@@ -176,12 +176,8 @@ int cl_ds_date(void)
 
 	case 1:
 		// No arguments - Display date - month/day/year
-
-		// Check RTC, status register - OSF flag.  Flag should be clear
-		//	rc = ds_time_valid();
-		//	if(rc) return rc;
-
 		// Read date, month, year into buffer
+		// TODO: subtract off 6 hrs for local time (date)
 		rc = cl_i2c_write_read(I2C_ADDRESS_DS3231, &reg, 1, date_month_year, 3); // read [0]seconds, [1]minutes, [2]hours
 		if(rc) {
 			printf("Error reading DS3231 date, month, year registers\n");
@@ -226,19 +222,59 @@ int read_rtc_into_date_time(DATE_TIME * dt)
 	return 0;
 }
 
-// Read / calculate Linux Timestamp / Epoch value and display it
+
+// Write the DS3231, given a DATE_TIME structure pointer
+int write_rtc_from_date_time(DATE_TIME * dt)
+{
+	int rc;
+	printf("Writing Yr %u, Mo %u, Day %u, Hr %u, Min %u, Sec %u\n",dt->yOff,dt->month,dt->day,dt->hours,dt->minutes,dt->seconds);
+
+	uint8_t rtc_buff[8];
+	// Using DATE_TIME structure, convert into bcd values to write to DS3231
+	rtc_buff[0] = DS_REG_SECONDS;
+	rtc_buff[1] = bin_to_bcd(dt->seconds);
+	rtc_buff[2] = bin_to_bcd(dt->minutes);
+	rtc_buff[3] = bin_to_bcd(dt->hours);
+	rtc_buff[4] = 1; // Force day of the week value to be valid - not implementing day of the week support
+	rtc_buff[5] = bin_to_bcd(dt->day);
+	rtc_buff[6] = bin_to_bcd(dt->month);
+	rtc_buff[7] = bin_to_bcd(dt->yOff);
+
+	// Write time and calendar registers from buffer
+	rc = cl_i2c_write_read(I2C_ADDRESS_DS3231, rtc_buff, 8, NULL, 0);
+	if(rc) {
+		printf("Error writing DS3231 time calendar registers\n");
+	}
+	return rc;
+}
+
+// Read / calculate Linux time-stamp / Epoch value and display it
 // The value matches what linux command $ date +%s  displays
-// If want time values to match, load RTC with UTC time, not local time
+// If user wants time values to match, load RTC with UTC time, not local time
+// If argument provided, set the time using Linux time-stamp value provided
+// Use this web resource: https://www.unixtimestamp.com/ <- this one IS OFF !!!
+// Better resource: https://www.epochconverter.com/
 int cl_ds_time_stamp(void)
 {
 	// If DS3231 doesn't appear to be attached, return with error now
 	int rc = ds3231_present(&hi2c1);
 	if(HAL_OK != rc) return rc;
 
+	uint32_t ts;
 	DATE_TIME dt;
-	read_rtc_into_date_time(&dt);
 
-	uint32_t ts = unixtime(&dt);
+	switch(argc) {
+	case 2:
+		ts = strtol(argv[1],NULL,0); // read in time-stamp argument
+		unix_to_date_time(&dt, ts);
+		rc = write_rtc_from_date_time(&dt);
+		break;
+	case 1:
+	default:
+		read_rtc_into_date_time(&dt); // read time into date_time structure
+		ts = unixtime(&dt); // convert and display time in Linux time-stamp units
+		break;
+	} // switch(argc)
 	printf("TS: %lu\n",ts);
 	return rc;
 }

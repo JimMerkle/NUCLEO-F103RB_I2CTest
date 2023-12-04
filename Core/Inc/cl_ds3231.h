@@ -5,6 +5,7 @@
 //
 #ifndef INC_CL_DS3231_H_
 #define INC_CL_DS3231_H_
+#include "rtc_lib.h"
 
 // Defines:
 #define I2C_ADDRESS_DS3231	0x68   // 7-bit I2C address
@@ -24,5 +25,7 @@ int cl_ds_time_valid(void);
 int cl_ds_time(void);
 int cl_ds_date(void);
 int cl_ds_time_stamp(void);
+int read_rtc_into_date_time(DATE_TIME * dt);
+int write_rtc_from_date_time(DATE_TIME * dt);
 
 #endif /* INC_CL_DS3231_H_ */
